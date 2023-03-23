@@ -7,6 +7,8 @@ using SuperHeroAPI.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var mongoDbSettings = builder.Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -15,17 +17,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
-builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
-{
-    var settings = builder.Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
-    return new MongoClient(settings.connectionString);
-});
+builder.Services.AddSingleton<IMongoClient>(serviceProvider => new MongoClient(mongoDbSettings.connectionString));
 builder.Services.AddSingleton<IItemRepository, MongoDbItemRepository>();
 
-builder.Services.AddControllers(options =>
-{
-    options.SuppressAsyncSuffixInActionNames = false;
-});
+builder.Services.AddControllers(options => { options.SuppressAsyncSuffixInActionNames = false; });
+builder.Services.AddHealthChecks().AddMongoDb(mongoDbSettings.connectionString,name: "mongodb",timeout: TimeSpan.FromSeconds(3));
 
 var app = builder.Build();
 
@@ -41,5 +37,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health-check");
 
 app.Run();

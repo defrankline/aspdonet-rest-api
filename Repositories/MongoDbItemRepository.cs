@@ -20,7 +20,7 @@ public class MongoDbItemRepository : IItemRepository
     public async Task<Item> GetItemAsync(Guid id)
     {
         var filter = _filterDefinitionBuilder.Eq(item => item.Id, id);
-        return  await _itemCollection.Find(filter).SingleOrDefaultAsync();
+        return await _itemCollection.Find(filter).SingleOrDefaultAsync();
     }
 
     public async Task<IEnumerable<Item>> GetItemsAsync()

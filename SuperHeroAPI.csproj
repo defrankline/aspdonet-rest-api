@@ -5,10 +5,11 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-      <UserSecretsId>49ebecd6-db13-4b1d-bca6-7e225cd35a29</UserSecretsId>
-  </PropertyGroup>
+        <UserSecretsId>49ebecd6-db13-4b1d-bca6-7e225cd35a29</UserSecretsId>
+    </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
         <PackageReference Include="MongoDb.Driver" Version="2.19.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     </ItemGroup>
