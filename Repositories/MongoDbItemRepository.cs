@@ -17,31 +17,31 @@ public class MongoDbItemRepository : IItemRepository
         _itemCollection = database.GetCollection<Item>(CollectionName);
     }
 
-    public Item GetItem(Guid id)
+    public async Task<Item> GetItemAsync(Guid id)
     {
         var filter = _filterDefinitionBuilder.Eq(item => item.Id, id);
-        return _itemCollection.Find(filter).SingleOrDefault();
+        return  await _itemCollection.Find(filter).SingleOrDefaultAsync();
     }
 
-    public IEnumerable<Item> GetItems()
+    public async Task<IEnumerable<Item>> GetItemsAsync()
     {
-        return _itemCollection.Find(new BsonDocument()).ToList();
+        return await _itemCollection.Find(new BsonDocument()).ToListAsync();
     }
 
-    public void CreateItem(Item item)
+    public async Task CreateItemAsync(Item item)
     {
-        _itemCollection.InsertOne(item);
+        await _itemCollection.InsertOneAsync(item);
     }
 
-    public void UpdateItem(Item item)
+    public async Task UpdateItemAsync(Item item)
     {
         var filter = _filterDefinitionBuilder.Eq(row => row.Id, item.Id);
-        _itemCollection.ReplaceOne(filter, item);
+        await _itemCollection.ReplaceOneAsync(filter, item);
     }
 
-    public void DeleteItem(Guid id)
+    public async Task DeleteItemAsync(Guid id)
     {
         var filter = _filterDefinitionBuilder.Eq(row => row.Id, id);
-        _itemCollection.DeleteOne(filter);
+        await _itemCollection.DeleteOneAsync(filter);
     }
 }

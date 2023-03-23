@@ -22,6 +22,11 @@ builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
 });
 builder.Services.AddSingleton<IItemRepository, MongoDbItemRepository>();
 
+builder.Services.AddControllers(options =>
+{
+    options.SuppressAsyncSuffixInActionNames = false;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
