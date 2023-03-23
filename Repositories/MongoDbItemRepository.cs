@@ -1,26 +1,31 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 using SuperHeroAPI.Entities;
 
 namespace SuperHeroAPI.Repositories;
 
-public class MongoDbItemRepository:IItemRepository
+public class MongoDbItemRepository : IItemRepository
 {
     private const string DatabaseName = "catalog";
     private const string CollectionName = "items";
+    private readonly FilterDefinitionBuilder<Item> _filterDefinitionBuilder = Builders<Item>.Filter;
     private readonly IMongoCollection<Item> _itemCollection;
+
     public MongoDbItemRepository(IMongoClient mongoClient)
     {
-        IMongoDatabase database = mongoClient.GetDatabase(DatabaseName);
+        var database = mongoClient.GetDatabase(DatabaseName);
         _itemCollection = database.GetCollection<Item>(CollectionName);
     }
+
     public Item GetItem(Guid id)
     {
-        throw new NotImplementedException();
+        var filter = _filterDefinitionBuilder.Eq(item => item.Id, id);
+        return _itemCollection.Find(filter).SingleOrDefault();
     }
 
     public IEnumerable<Item> GetItems()
     {
-        throw new NotImplementedException();
+        return _itemCollection.Find(new BsonDocument()).ToList();
     }
 
     public void CreateItem(Item item)
@@ -30,11 +35,13 @@ public class MongoDbItemRepository:IItemRepository
 
     public void UpdateItem(Item item)
     {
-        throw new NotImplementedException();
+        var filter = _filterDefinitionBuilder.Eq(row => row.Id, item.Id);
+        _itemCollection.ReplaceOne(filter, item);
     }
 
     public void DeleteItem(Guid id)
     {
-        throw new NotImplementedException();
+        var filter = _filterDefinitionBuilder.Eq(row => row.Id, id);
+        _itemCollection.DeleteOne(filter);
     }
 }
