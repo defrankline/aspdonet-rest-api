@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    </PropertyGroup>
+      <UserSecretsId>49ebecd6-db13-4b1d-bca6-7e225cd35a29</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="MongoDb.Driver" Version="2.19.0" />
