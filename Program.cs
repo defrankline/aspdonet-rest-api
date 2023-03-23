@@ -1,3 +1,6 @@
+using System.Net.Mime;
+using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -21,7 +24,12 @@ builder.Services.AddSingleton<IMongoClient>(serviceProvider => new MongoClient(m
 builder.Services.AddSingleton<IItemRepository, MongoDbItemRepository>();
 
 builder.Services.AddControllers(options => { options.SuppressAsyncSuffixInActionNames = false; });
-builder.Services.AddHealthChecks().AddMongoDb(mongoDbSettings.connectionString,name: "mongodb",timeout: TimeSpan.FromSeconds(3));
+builder.Services.AddHealthChecks().AddMongoDb(
+    mongoDbSettings.connectionString,
+    name: "mongodb",
+    timeout: TimeSpan.FromSeconds(3),
+    tags: new[] { "ready" }
+);
 
 var app = builder.Build();
 
@@ -38,6 +46,32 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHealthChecks("/health-check");
+app.MapHealthChecks("/health-check/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = async (context, report) =>
+    {
+        var result = JsonSerializer.Serialize(new
+            {
+                status = report.Status.ToString(),
+                checks = report.Entries.Select(entry => new
+                {
+                    name = entry.Key,
+                    status = entry.Value.Status.ToString(),
+                    exception = entry.Value.Exception != null ? entry.Value.Exception.Message : "None",
+                    duration = entry.Value.Duration
+                })
+            }
+        );
+
+        context.Response.ContentType = MediaTypeNames.Application.Json;
+        await context.Response.WriteAsync(result);
+    }
+});
+
+app.MapHealthChecks("/health-check/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
 
 app.Run();
