@@ -1,6 +1,6 @@
-namespace SuperHeroAPI.Entities;
+namespace SuperHeroAPI.DTOs;
 
-public record Item
+public record ItemDto
 {
     public Guid Id { get; init; }
     public string Name { get; init; } = string.Empty;
